@@ -1,0 +1,21 @@
+:root {
+  --background: #0A0D14;
+  --box: #1F2226;
+  --orange: #FF6538;
+  --light-orange: rgba(255, 101, 56, 0.3);
+  --very-light-orange: rgba(255, 101, 56, 0.1);
+  --white: #F8F8F8;
+  --light-content: rgba(248, 248, 248, 0.5);
+  --very-light-content: rgba(248, 248, 248, 0.15);
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.box {
+  border-radius: 20px;
+  background-color: var(--box);
+}

@@ -1,0 +1,75 @@
+/* Lexend Deca */
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap');
+
+
+/* NEW SIZE */
+/*
+-> h1 : extrabold 64px
+-> h2 : bold 32px
+-> h3 : bold 24px
+-> h4 : medium 16px
+-> h5 : medium 14px
+-> h6 : regular 14px
+-> p : medium 13px (ou regular)
+*/
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    font-family: "Lexend Deca", serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    color: var(--white);
+}
+
+.light {
+    color: var(--light-content);
+}
+
+h1 {
+    font-weight: 800;
+    /* font-size: 64px; */
+    font-size: 4rem;
+}
+
+h2 {
+    font-weight: 700;
+    /* font-size: 32px; */
+    font-size: 2rem;
+}
+
+h3 {
+    font-weight: 700;
+    /* font-size: 20px; */
+    font-size: 1.5rem;
+}
+
+h4,
+.tracks-title {
+    font-weight: 500;
+    /* font-size: 16px; */
+    font-size: 1rem;
+}
+
+h5 {
+    font-weight: 500;
+    /* font-size: 14px; */
+    font-size: 0.875rem;
+}
+
+h6,
+.tracks-table-artists {
+    font-weight: 400;
+    /* font-size: 14px; */
+    font-size: 0.875rem;
+}
+
+p {
+    font-weight: 400;
+    /* font-size: 13px; */
+    font-size: 0.8125rem;
+}
