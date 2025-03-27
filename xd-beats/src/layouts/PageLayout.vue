@@ -1,19 +1,24 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { RouterView } from 'vue-router';
+import { useSpotifyStore } from '@/stores/spotify';
+
+const spotifyStore = useSpotifyStore();
 </script>
 
-<template id="app">
-  <RouterView />
-  <h1>I am a layout</h1>
+<template>
+  <div id="app">
+    <RouterView />
+    <h2 v-if="spotifyStore.accessToken">You're connected</h2>
+  </div>
 </template>
 
 <style>
 #app {
   display: grid;
   grid-template-areas:
-  "menu search settings"
-  "menu main now"
-  "menu player player";
+    "menu search profile"
+    "menu main now"
+    "menu player player";
   grid-template-columns: 200px 1fr 250px;
   grid-template-rows: 56px 1fr 90px;
   column-gap: 12px;

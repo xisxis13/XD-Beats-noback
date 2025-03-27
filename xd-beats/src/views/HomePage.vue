@@ -1,7 +1,12 @@
-<script>
+<script setup>
+import { useSpotifyStore } from '@/stores/spotify';
 
+const spotifyStore = useSpotifyStore();
 </script>
 
 <template>
-  <h1>Home page</h1>
+  <div>
+    <h1>Bienvenue, {{ spotifyStore.userProfile?.display_name }}</h1>
+    <button v-if="!spotifyStore.accessToken" @click="spotifyStore.login">Se connecter à Spotify</button>
+  </div>
 </template>
