@@ -11,7 +11,8 @@ const routes = [
       { path: "/", name: 'Home', component: HomePage },
       { path: "/callback", name: 'Callback', component: CallBack },
     ]
-  }
+  },
+  { path: "/callback", name: 'Callback', component: CallBack }
 ];
 
 const router = createRouter({

@@ -1,19 +1,22 @@
 <script setup>
 import { RouterView } from 'vue-router';
 import { useSpotifyStore } from '@/stores/spotify';
+import MenuBar from '@/components/MenuBar.vue';
 
 const spotifyStore = useSpotifyStore();
 </script>
 
 <template>
-  <div id="app">
+  <div class="app">
+    <MenuBar/>
+
     <RouterView />
     <h2 v-if="spotifyStore.accessToken">You're connected</h2>
   </div>
 </template>
 
 <style>
-#app {
+.app {
   display: grid;
   grid-template-areas:
     "menu search profile"

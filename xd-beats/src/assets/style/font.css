@@ -23,11 +23,11 @@ p {
     font-family: "Lexend Deca", serif;
     font-optical-sizing: auto;
     font-style: normal;
-    color: var(--white);
+    color: var(--text);
 }
 
 .light {
-    color: var(--light-content);
+    color: var(--light-text);
 }
 
 h1 {
