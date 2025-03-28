@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
-// Fonctions utilitaires pour PKCE
+// Fonctions utilitaires pour PKCE (inchangées)
 function generateRandomString(length) {
   const array = new Uint8Array(length);
   crypto.getRandomValues(array);
@@ -20,8 +20,8 @@ async function generateCodeChallenge(codeVerifier) {
 
 export const useSpotifyStore = defineStore('spotify', {
   state: () => ({
-    accessToken: null,
-    refreshToken: null,
+    accessToken: localStorage.getItem('accessToken') || null,
+    refreshToken: localStorage.getItem('refreshToken') || null,
     userProfile: null,
     codeVerifier: null,
   }),
@@ -31,12 +31,10 @@ export const useSpotifyStore = defineStore('spotify', {
       const redirectUri = 'http://localhost:5173/callback';
       const scopes = 'user-read-private user-read-email playlist-read-private';
 
-      // Générer et stocker le code_verifier
       this.codeVerifier = generateRandomString(128);
       localStorage.setItem('codeVerifier', this.codeVerifier);
       const codeChallenge = await generateCodeChallenge(this.codeVerifier);
 
-      // Utiliser "S256" au lieu de "SHA256"
       const authUrl = `https://accounts.spotify.com/authorize?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${encodeURIComponent(redirectUri)}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
       window.location = authUrl;
     },
@@ -92,6 +90,10 @@ export const useSpotifyStore = defineStore('spotify', {
         this.userProfile = response.data;
       } catch (error) {
         console.error('Erreur lors de la récupération du profil:', error.response?.data || error.message);
+        if (error.response?.status === 401) {
+          await this.refreshAccessToken();
+          await this.fetchUserProfile();
+        }
       }
     },
 
@@ -115,7 +117,25 @@ export const useSpotifyStore = defineStore('spotify', {
         localStorage.setItem('accessToken', this.accessToken);
       } catch (error) {
         console.error('Erreur lors du rafraîchissement du token:', error.response?.data || error.message);
+        this.logout();
       }
+    },
+
+    async initialize() {
+      if (this.accessToken && !this.userProfile) {
+        await this.fetchUserProfile();
+      } else if (!this.accessToken && this.refreshToken) {
+        await this.refreshAccessToken();
+        await this.fetchUserProfile();
+      }
+    },
+
+    logout() {
+      this.accessToken = null;
+      this.refreshToken = null;
+      this.userProfile = null;
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     },
   },
 });
