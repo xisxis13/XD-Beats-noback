@@ -1,5 +1,7 @@
 <script>
 import appIcon from '@/assets/icons/app-logo.svg';
+import LibraryItem from './LibraryItem.vue';
+import { useSpotifyStore } from '@/stores/spotify';
 import { RouterLink, useRoute } from 'vue-router';
 import { House, Globe, Library, Plus } from 'lucide-vue-next';
 
@@ -10,18 +12,48 @@ export default {
     Globe,
     Library,
     Plus,
+    LibraryItem,
   },
   data() {
     return {
       appIcon,
+      store: useSpotifyStore(),
       route: useRoute(),
+      savedAlbums: [],
+      savedPlaylists: [],
+      savedItems: [],
     }
   },
   methods: {
     isActive(url) {
       return this.route.path === url;
+    },
+    async fetchAlbums() {
+      try {
+        await this.store.fetchUserSavedAlbums();
+        this.savedAlbums = this.store.savedAlbums;
+      } catch (error) {
+        console.error('Erreur lors du chargement des albums dans MenuBar:', error);
+      }
+    },
+    async fetchPlaylists() {
+      try {
+        await this.store.fetchUserSavedPlaylists();
+        this.savedPlaylists = this.store.savedPlaylists;
+      } catch (error) {
+        console.error('Erreur lors du chargement des playlists dans MenuBar:', error);
+      }
     }
-  }
+  },
+  async mounted() {
+    if (this.store.accessToken) {
+      await this.fetchAlbums();
+      await this.fetchPlaylists();
+      
+      const combinedItems = [...this.savedAlbums, ...this.savedPlaylists];
+      this.savedItems = combinedItems.sort(() => Math.random() - 0.5);
+    }
+  },
 }
 </script>
 
@@ -58,6 +90,10 @@ export default {
           </button>
         </li>
       </ul>
+
+      <div class="library-container">
+        <LibraryItem v-for="item in savedItems" :key="item.id" :library-item="item" />
+      </div>
     </div>
   </div>
 </template>
@@ -83,6 +119,12 @@ export default {
   height: 36px;
 }
 
+.menubar-list-container {
+  height: 100%;
+
+  overflow: hidden;
+}
+
 .menubar-list-container,
 .menubar-list {
   display: flex;
@@ -91,7 +133,6 @@ export default {
   gap: 8px;
 
   width: 100%;
-  height: 100%;
 }
 
 .menubar-list {
@@ -130,6 +171,13 @@ export default {
   width: 22px;
 
   color: var(--text);
+}
+
+.library-container {
+  width: 100%;
+  height: 100%;
+
+  overflow: scroll;
 }
 
 .menubar-item.active {

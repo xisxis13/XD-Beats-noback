@@ -9,6 +9,10 @@ const routes = [
     component: PageLayout,
     children: [
       { path: "/", name: 'Home', component: HomePage },
+      { path: "/browse", name: 'Browse', component: HomePage },
+      { path: "/library", name: 'Library', component: HomePage },
+      { path: "/albums/:id", component: HomePage },
+      { path: "/playlists/:id", component: HomePage },
       { path: "/callback", name: 'Callback', component: CallBack },
     ]
   },

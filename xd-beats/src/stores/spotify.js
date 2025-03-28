@@ -24,12 +24,14 @@ export const useSpotifyStore = defineStore('spotify', {
     refreshToken: localStorage.getItem('refreshToken') || null,
     userProfile: null,
     codeVerifier: null,
+    savedAlbums: [],
+    savedPlaylists: [],
   }),
   actions: {
     async login() {
       const clientId = '656fafd0a60d45bdb5757933f4ac7f18';
       const redirectUri = 'http://localhost:5173/callback';
-      const scopes = 'user-read-private user-read-email playlist-read-private';
+      const scopes = 'user-read-private user-read-email playlist-read-private user-library-read';
 
       this.codeVerifier = generateRandomString(128);
       localStorage.setItem('codeVerifier', this.codeVerifier);
@@ -97,6 +99,64 @@ export const useSpotifyStore = defineStore('spotify', {
       }
     },
 
+    async fetchUserSavedAlbums(limit = 8, offset = 0) {
+      try {
+        if (!this.accessToken) {
+          throw new Error('Aucun accessToken disponible');
+        }
+
+        const response = await axios.get('https://api.spotify.com/v1/me/albums', {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+          params: {
+            limit,
+            offset,
+          },
+        });
+
+        this.savedAlbums = response.data.items;
+      } catch (error) {
+        console.error('Erreur lors de la récupération des albums sauvergardés:', error.response?.data || error.message);
+        if (error.response?.status === 401) {
+          await this.refreshAccessToken();
+          return this.fetchUserSavedAlbums(limit, offset);
+        } else if (error.response?.status === 403) {
+          console.error('Erreur d\'autorisation: vérifiez que le scope "user-library-read" est bien inclus');
+          this.logout();
+          await this.login();
+        }
+        throw error;
+      }
+    },
+
+    async fetchUserSavedPlaylists(limit = 8, offset = 0) {
+      try {
+        if (!this.accessToken) {
+          throw new Error('Aucun accessToken disponible');
+        }
+
+        const response = await axios.get('https://api.spotify.com/v1/me/playlists', {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+          params: {
+            limit,
+            offset,
+          },
+        });
+
+        this.savedPlaylists = response.data.items;
+      } catch (error) {
+        console.error('Erreur lors de la récupération des playlists sauvergardés:', error.response?.data || error.message);
+        if (error.response?.status === 401) {
+          await this.refreshAccessToken();
+          await this.fetchUserSavedPlaylists(limit, offset);
+        }
+        throw error;
+      }
+    },
+
     async refreshAccessToken() {
       try {
         const clientId = '656fafd0a60d45bdb5757933f4ac7f18';
@@ -134,6 +194,8 @@ export const useSpotifyStore = defineStore('spotify', {
       this.accessToken = null;
       this.refreshToken = null;
       this.userProfile = null;
+      this.savedAlbums = [];
+      this.savedPlaylists = [],
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
     },
