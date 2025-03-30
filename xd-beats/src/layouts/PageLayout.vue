@@ -1,19 +1,21 @@
 <script setup>
 import { RouterView } from 'vue-router';
-import { useSpotifyStore } from '@/stores/spotify';
 import MenuBar from '@/components/MenuBar.vue';
 import ProfileComponent from '@/components/ProfileComponent.vue';
-
-const spotifyStore = useSpotifyStore();
+import NowPlaying from '@/components/NowPlaying.vue';
+import MusicPlayer from '@/components/MusicPlayer.vue';
+import SearchBar from '@/components/SearchBar.vue';
 </script>
 
 <template>
   <div class="app">
     <MenuBar/>
     <ProfileComponent/>
+    <NowPlaying/>
+    <MusicPlayer/>
+    <SearchBar/>
 
     <RouterView />
-    <h2 v-if="spotifyStore.accessToken">You're connected</h2>
   </div>
 </template>
 
