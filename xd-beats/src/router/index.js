@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import PageLayout from '@/layouts/PageLayout.vue'
 import HomePage from '../views/HomePage.vue'
+import LoginPage from '../views/LoginPage.vue'
 import CallBack from '@/views/CallBack.vue';
 
 const routes = [
@@ -17,7 +18,8 @@ const routes = [
       { path: "/callback", name: 'Callback', component: CallBack },
     ]
   },
-  { path: "/callback", name: 'Callback', component: CallBack }
+  { path: "/callback", name: 'Callback', component: CallBack },
+  { path: "/login", name: 'Login', component: LoginPage },
 ];
 
 const router = createRouter({
