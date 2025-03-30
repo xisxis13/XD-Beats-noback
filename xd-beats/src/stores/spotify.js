@@ -31,6 +31,7 @@ export const useSpotifyStore = defineStore('spotify', {
     isPlaying: null,
     isRepeat: null,
     isShuffle: false,
+    albumSelected: null,
   }),
   actions: {
     async login() {
@@ -325,6 +326,26 @@ export const useSpotifyStore = defineStore('spotify', {
       }
     },
 
+    async fetchAlbumById(albumId) {
+      try {
+        if (!this.accessToken) {
+          throw new Error('Aucun accessToken disponible');
+        }
+        const response = await axios.get(`https://api.spotify.com/v1/albums/${albumId}`, {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        });
+        this.albumSelected = response.data;
+      } catch (error) {
+        console.error('Erreur lors de la récupération de l album:', error.response?.data || error.message);
+        if (error.response?.status === 401) {
+          await this.refreshAccessToken();
+          await this.fetchAlbumById(albumId);
+        }
+      }
+    },
+
     async refreshAccessToken() {
       try {
         const clientId = '656fafd0a60d45bdb5757933f4ac7f18';
@@ -370,6 +391,7 @@ export const useSpotifyStore = defineStore('spotify', {
       this.isPlaying = null;
       this.isRepeat = null;
       this.isShuffle = false;
+      this.albumSelected = null;
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
     },
