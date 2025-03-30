@@ -3,10 +3,12 @@ import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useSpotifyStore } from '@/stores/spotify';
 import OverviewBannier from '@/components/OverviewBannier.vue';
+import TrackList from '@/components/TrackList.vue';
 
 export default {
   components: {
     OverviewBannier,
+    TrackList,
   },
   setup() {
     const currentAlbum = ref(null);
@@ -50,8 +52,7 @@ export default {
   <div class="album-overview-container box">
     <template v-if="currentAlbum">
       <OverviewBannier :current="currentAlbum" />
-
-      
+      <TrackList :track-list="currentAlbum.tracks.items" :has-album-details="true" />
     </template>
 
     <template v-else>
@@ -62,21 +63,12 @@ export default {
 </template>
 
 <style scoped>
-.color-container {
+.album-overview-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
+  gap: 12px;
 
-  width: 300px;
-  height: 200px;
-
-  transition: background-color 0.3s ease;
-}
-
-.source-image {
-  max-width: 100px;
-  max-height: 100px;
-  margin-bottom: 10px;
 }
 </style>
