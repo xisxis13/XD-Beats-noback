@@ -2,6 +2,7 @@
 import { RouterView } from 'vue-router';
 import { useSpotifyStore } from '@/stores/spotify';
 import MenuBar from '@/components/MenuBar.vue';
+import ProfileComponent from '@/components/ProfileComponent.vue';
 
 const spotifyStore = useSpotifyStore();
 </script>
@@ -9,6 +10,7 @@ const spotifyStore = useSpotifyStore();
 <template>
   <div class="app">
     <MenuBar/>
+    <ProfileComponent/>
 
     <RouterView />
     <h2 v-if="spotifyStore.accessToken">You're connected</h2>
