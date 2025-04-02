@@ -89,6 +89,27 @@ export default {
         </h5>
       </div>
     </template>
+
+    <template v-if="current.type === 'playlist'">
+      <img
+        ref="cover"
+        :src="current.images[0].url"
+        :alt="current.name + ' cover'"
+        class="bannier-img"
+        crossorigin="anonymous"
+      />
+
+      <div class="bannier-details-container">
+        <h5 class="current-object-type light">Playlist</h5>
+        <h1 class="current-object-name">{{ current.name }}</h1>
+        <h5 class="current-object-details">
+          <RouterLink :to="`/users/${current.owner.id}`" class="current-owner-link">{{ current.owner.display_name }}</RouterLink>
+          <span class="light"> • {{ current.tracks.items.length }} songs</span>
+          <span v-if="current.followers.total < 2" class="light"> • {{ current.followers.total }} follower</span>
+          <span v-else class="light"> • {{ current.followers.total }} followers</span>
+        </h5>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -122,12 +143,14 @@ export default {
   padding: 8px 0;
 }
 
-.current-album-link {
+.current-album-link,
+.current-owner-link {
   color: var(--text);
   text-decoration: none;
 }
 
-.current-album-link:hover {
+.current-album-link:hover,
+.current-owner-link:hover {
   text-decoration: underline;
 }
 </style>

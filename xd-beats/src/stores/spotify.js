@@ -32,6 +32,7 @@ export const useSpotifyStore = defineStore('spotify', {
     isRepeat: null,
     isShuffle: false,
     albumSelected: null,
+    playlistSelected: null,
   }),
   actions: {
     async login() {
@@ -105,7 +106,7 @@ export const useSpotifyStore = defineStore('spotify', {
       }
     },
 
-    async fetchUserSavedAlbums(limit = 8, offset = 0) {
+    async fetchUserSavedAlbums(limit = 20, offset = 0) {
       try {
         if (!this.accessToken) {
           throw new Error('Aucun accessToken disponible');
@@ -136,7 +137,7 @@ export const useSpotifyStore = defineStore('spotify', {
       }
     },
 
-    async fetchUserSavedPlaylists(limit = 8, offset = 0) {
+    async fetchUserSavedPlaylists(limit = 20, offset = 0) {
       try {
         if (!this.accessToken) {
           throw new Error('Aucun accessToken disponible');
@@ -346,6 +347,26 @@ export const useSpotifyStore = defineStore('spotify', {
       }
     },
 
+    async fetchPlaylistById(playlistId) {
+      try {
+        if (!this.accessToken) {
+          throw new Error('Aucun accessToken disponible');
+        }
+        const response = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        });
+        this.playlistSelected = response.data;
+      } catch (error) {
+        console.error('Erreur lors de la récupération de la playlist:', error.response?.data || error.message);
+        if (error.response?.status === 401) {
+          await this.refreshAccessToken();
+          await this.fetchPlaylistById(playlistId);
+        }
+      }
+    },
+
     async refreshAccessToken() {
       try {
         const clientId = '656fafd0a60d45bdb5757933f4ac7f18';
@@ -392,6 +413,7 @@ export const useSpotifyStore = defineStore('spotify', {
       this.isRepeat = null;
       this.isShuffle = false;
       this.albumSelected = null;
+      this.playlistSelected = null;
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
     },

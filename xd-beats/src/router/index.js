@@ -3,6 +3,7 @@ import PageLayout from '@/layouts/PageLayout.vue'
 import HomePage from '../views/HomePage.vue'
 import LoginPage from '../views/LoginPage.vue'
 import AlbumOverview from '../views/AlbumOverview.vue'
+import PlaylistOverview from '@/views/PlaylistOverview.vue'
 import CallBack from '@/views/CallBack.vue';
 
 const routes = [
@@ -14,7 +15,7 @@ const routes = [
       { path: "/browse", name: 'Browse', component: HomePage },
       { path: "/library", name: 'Library', component: HomePage },
       { path: "/albums/:albumId", component: AlbumOverview },
-      { path: "/playlists/:id", component: HomePage },
+      { path: "/playlists/:playlistId", component: PlaylistOverview },
       { path: "/profile", name: 'Profile', component: HomePage },
       { path: "/callback", name: 'Callback', component: CallBack },
     ]

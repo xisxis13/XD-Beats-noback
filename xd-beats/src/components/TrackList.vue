@@ -33,8 +33,8 @@ export default {
 
       <hr>
 
-      <template v-for="track in trackList" :key="track.id">
-        <InlineTrack :track="track" :has-album-details="hasAlbumDetails" />
+      <template v-for="(track, index) in trackList" :key="track.id">
+        <InlineTrack :track="track" :has-album-details="hasAlbumDetails" :index="index+1" />
       </template>
     </template>
 
