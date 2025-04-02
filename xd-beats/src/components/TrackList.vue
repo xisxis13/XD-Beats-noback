@@ -25,7 +25,7 @@ export default {
     <!-- playlist -->
     <template v-if="hasAlbumDetails">
       <div class="track-list-title-container with-album-details">
-        <h5 class="light">#</h5>
+        <h5 class="track-list-inline-index-dot light">#</h5>
         <h5 class="light">Title</h5>
         <h5 class="light">Album</h5>
         <Clock3 class="track-duration-icon light"/>
@@ -41,7 +41,7 @@ export default {
     <!-- autre -->
     <template v-else>
       <div class="track-list-title-container">
-        <h5 class="light">#</h5>
+        <h5 class="track-list-inline-index-dot light">#</h5>
         <h5 class="light">Title</h5>
         <Clock3 class="track-duration-icon light"/>
       </div>
@@ -69,13 +69,16 @@ export default {
 }
 
 .track-list-title-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: 25px 1fr 40px;
+  column-gap: 16px;
 
   padding: 0 12px;
   width: 100%;
+}
+
+.track-list-title-container.with-album-details {
+  grid-template-columns: 25px 1fr 1fr 40px;
 }
 
 .track-list-container hr {
@@ -84,21 +87,12 @@ export default {
   border-color: var(--light-content);
 }
 
-.track-list-title-container h5:nth-child(1) {
-  width: 25px;
-
+.track-list-inline-index-dot {
   text-align: center;
 }
 
-.track-list-title-container h5:nth-child(2),
-.track-list-title-container.with-album-details h5:nth-child(3) {
-  width: 100%;
-
-  text-align: left;
-}
-
 .track-duration-icon {
-  width: 85px;
+  width: 100%;
   max-height: 20px;
 }
 </style>

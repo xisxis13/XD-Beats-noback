@@ -106,7 +106,7 @@ export const useSpotifyStore = defineStore('spotify', {
       }
     },
 
-    async fetchUserSavedAlbums(limit = 20, offset = 0) {
+    async fetchUserSavedAlbums(limit = 8, offset = 0) {
       try {
         if (!this.accessToken) {
           throw new Error('Aucun accessToken disponible');
@@ -137,7 +137,7 @@ export const useSpotifyStore = defineStore('spotify', {
       }
     },
 
-    async fetchUserSavedPlaylists(limit = 20, offset = 0) {
+    async fetchUserSavedPlaylists(limit = 8, offset = 0) {
       try {
         if (!this.accessToken) {
           throw new Error('Aucun accessToken disponible');
