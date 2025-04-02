@@ -1,9 +1,11 @@
 <script>
 import { Clock3 } from 'lucide-vue-next';
+import InlineTrack from './InlineTrack.vue';
 
 export default {
   components: {
     Clock3,
+    InlineTrack,
   },
   props: {
     trackList: {
@@ -30,6 +32,10 @@ export default {
       </div>
 
       <hr>
+
+      <template v-for="track in trackList" :key="track.id">
+        <InlineTrack :track="track" :has-album-details="hasAlbumDetails" />
+      </template>
     </template>
 
     <!-- autre -->
@@ -42,7 +48,9 @@ export default {
 
       <hr>
 
-      <!-- tracks -->
+      <template v-for="track in trackList" :key="track.id">
+        <InlineTrack :track="track" :has-album-details="hasAlbumDetails" />
+      </template>
     </template>
   </div>
 </template>
@@ -57,6 +65,7 @@ export default {
 
   padding: 0 24px;
   width: 100%;
+  height: 100%;
 }
 
 .track-list-title-container {

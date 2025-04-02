@@ -52,7 +52,7 @@ export default {
   <div class="album-overview-container box">
     <template v-if="currentAlbum">
       <OverviewBannier :current="currentAlbum" />
-      <TrackList :track-list="currentAlbum.tracks.items" :has-album-details="true" />
+      <TrackList :track-list="currentAlbum.tracks.items" :has-album-details="false" />
     </template>
 
     <template v-else>
@@ -70,5 +70,6 @@ export default {
   justify-content: left;
   gap: 12px;
 
+  overflow-y: scroll;
 }
 </style>
