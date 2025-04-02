@@ -84,7 +84,8 @@ export default {
         <h1 class="current-object-name">{{ current.name }}</h1>
         <h5 class="current-object-details">
           <RouterLink :to="`/artists/${current.artists[0].id}`" class="current-album-link">{{ current.artists[0].name }}</RouterLink>
-          <span class="light"> • {{ current.tracks.items.length }} songs</span>
+          <span v-if="current.tracks.items.length < 2" class="light"> • {{ current.tracks.items.length }} song</span>
+          <span v-else class="light"> • {{ current.tracks.items.length }} songs</span>
           <span class="light"> • {{ current.release_date }}</span>
         </h5>
       </div>
@@ -104,7 +105,8 @@ export default {
         <h1 class="current-object-name">{{ current.name }}</h1>
         <h5 class="current-object-details">
           <RouterLink :to="`/users/${current.owner.id}`" class="current-owner-link">{{ current.owner.display_name }}</RouterLink>
-          <span class="light"> • {{ current.tracks.items.length }} songs</span>
+          <span v-if="current.tracks.items.length < 2" class="light"> • {{ current.tracks.items.length }} song</span>
+          <span v-else class="light"> • {{ current.tracks.items.length }} songs</span>
           <span v-if="current.followers.total < 2" class="light"> • {{ current.followers.total }} follower</span>
           <span v-else class="light"> • {{ current.followers.total }} followers</span>
         </h5>
