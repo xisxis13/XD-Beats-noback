@@ -4,6 +4,7 @@ import HomePage from '../views/HomePage.vue'
 import LoginPage from '../views/LoginPage.vue'
 import AlbumOverview from '../views/AlbumOverview.vue'
 import PlaylistOverview from '@/views/PlaylistOverview.vue'
+import ProfileOverview from '@/views/ProfileOverview.vue'
 import CallBack from '@/views/CallBack.vue';
 
 const routes = [
@@ -16,7 +17,7 @@ const routes = [
       { path: "/library", name: 'Library', component: HomePage },
       { path: "/albums/:albumId", component: AlbumOverview },
       { path: "/playlists/:playlistId", component: PlaylistOverview },
-      { path: "/profile", name: 'Profile', component: HomePage },
+      { path: "/profile", name: 'Profile', component: ProfileOverview },
       { path: "/callback", name: 'Callback', component: CallBack },
     ]
   },

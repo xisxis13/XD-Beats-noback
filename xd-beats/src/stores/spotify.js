@@ -33,12 +33,14 @@ export const useSpotifyStore = defineStore('spotify', {
     isShuffle: false,
     albumSelected: null,
     playlistSelected: null,
+    followedArtists: [],
+    publicPlaylists: [],
   }),
   actions: {
     async login() {
       const clientId = '656fafd0a60d45bdb5757933f4ac7f18';
       const redirectUri = 'http://localhost:5173/callback';
-      const scopes = 'user-read-private user-read-email playlist-read-private user-library-read user-read-currently-playing user-read-playback-state user-modify-playback-state';
+      const scopes = 'user-read-private user-read-email playlist-read-private user-library-read user-read-currently-playing user-read-playback-state user-modify-playback-state user-follow-read';
 
       this.codeVerifier = generateRandomString(128);
       localStorage.setItem('codeVerifier', this.codeVerifier);
@@ -367,6 +369,66 @@ export const useSpotifyStore = defineStore('spotify', {
       }
     },
 
+    async fetchUserFollowedArtists(limit = 50) {
+      try {
+        if (!this.accessToken) {
+          throw new Error('Aucun accessToken disponible');
+        }
+        const response = await axios.get(`https://api.spotify.com/v1/me/following`, {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+          params: {
+            type: 'artist',
+            limit
+          }
+        });
+        this.followedArtists = response.data.artists.items;
+        return this.followedArtists;
+      } catch (error) {
+        console.error('Erreur lors de la récupération des artistes suivis du user:', error.response?.data || error.message);
+        if (error.response?.status === 401) {
+          await this.refreshAccessToken();
+          return this.fetchUserFollowedArtists(limit);
+        } else if (error.response?.status === 403) {
+          console.error('Erreur d\'autorisation: vérifiez que le scope "user-follow-read" est bien inclus');
+          this.logout();
+          await this.login();
+        }
+        throw error;
+      }
+    },
+
+    async fetchUserPublicPlaylists(limit = 50, offset = 5) {
+      try {
+        if (!this.accessToken) {
+          throw new Error('Aucun accessToken disponible');
+        }
+        const response = await axios.get(`https://api.spotify.com/v1/me/playlists`, {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+          params: {
+            limit,
+            offset,
+          },
+        });
+        this.publicPlaylists = response.data.items;
+        return this.publicPlaylists;
+      } catch (error) {
+        console.error('Erreur lors de la récupération des playlists public du user:', error.response?.data || error.message);
+        if (error.response?.status === 401) {
+          await this.refreshAccessToken();
+          return this.fetchUserPublicPlaylists(limit, offset);
+        } else if (error.response?.status === 403) {
+          console.error('Erreur d\'autorisation: vérifiez que le scope "playlist-read-private" est bien inclus');
+          this.logout();
+          await this.login();
+        }
+        throw error;
+      }
+    },
+
     async refreshAccessToken() {
       try {
         const clientId = '656fafd0a60d45bdb5757933f4ac7f18';
@@ -414,6 +476,8 @@ export const useSpotifyStore = defineStore('spotify', {
       this.isShuffle = false;
       this.albumSelected = null;
       this.playlistSelected = null;
+      this.followedArtists = [];
+      this.publicPlaylists = [];
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
     },
