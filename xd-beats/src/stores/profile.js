@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { useAuthStore } from "./auth";
-import { spotifyApi } from '@/services/spotifyApi';
+import { spotifyApi } from '@/assets/services/spotifyApi';
 
 export const useProfileStore = defineStore('profile', {
   state: () => ({

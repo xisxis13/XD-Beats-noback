@@ -1,44 +1,40 @@
-<script>
+<script setup>
 import defaultAvatar from '@/assets/icons/default-avatar.svg';
-import { useSpotifyStore } from '@/stores/spotify';
+import { useProfileStore } from '@/stores/profile';
 import { RouterLink } from 'vue-router';
 
-export default {
-  components: {
-    RouterLink
-  },
-  data() {
-    return {
-      defaultAvatar,
-      store: useSpotifyStore(),
-    }
-  },
-}
+const profileStore = useProfileStore();
 </script>
 
 <template>
   <div class="profile-component-container box">
-    <RouterLink :to="'/profile'" class="profile-container">
-      <template v-if="store.userProfile?.images">
-        <img class="profile-component-avatar" :src="store.userProfile.images[0].url" :alt="store.userProfile.display_name + ' avatar'">
-        <h4 class="profile-component-name">{{ store.userProfile.display_name }}</h4>
+    <RouterLink :to="'/profile'" class="profile-container" aria-label="Accéder au profil utilisateur">
+      <template v-if="profileStore.userProfile?.images && profileStore.userProfile.images.length > 0">
+        <img
+          class="profile-component-avatar"
+          :src="profileStore.userProfile.images[0].url"
+          :alt="profileStore.userProfile.display_name + ' avatar'"
+        >
+        <h4 class="profile-component-name">{{ profileStore.userProfile.display_name }}</h4>
       </template>
 
       <template v-else>
-        <img class="profile-component-avatar" :src="defaultAvatar" alt="default avatar">
-        <h4 class="profile-component-name">user</h4>
+        <img
+          class="profile-component-avatar"
+          :src="defaultAvatar"
+          alt="Avatar par défaut"
+        >
+        <h4 class="profile-component-name">{{ profileStore.userName }}</h4>
       </template>
     </RouterLink>
   </div>
 </template>
 
-<style>
+<style scoped>
 .profile-component-container {
   grid-area: profile;
-
   padding: 8px;
   width: 100%;
-
   overflow: hidden;
 }
 
@@ -47,12 +43,11 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 8px;
-
   width: 100%;
   height: 100%;
-
   border-radius: 12px;
   text-decoration: none;
+  transition: background-color 0.2s ease;
 }
 
 .profile-container:hover {
@@ -62,7 +57,13 @@ export default {
 .profile-component-avatar {
   height: 100%;
   aspect-ratio: 1/1;
-
   border-radius: 100%;
+  object-fit: cover;
+}
+
+.profile-component-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

@@ -1,51 +1,39 @@
-<script>
+<script setup>
 import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useSpotifyStore } from '@/stores/spotify';
+import { useLibraryStore } from '@/stores/library';
 import OverviewBannier from '@/components/OverviewBannier.vue';
 import TrackList from '@/components/TrackList.vue';
 
-export default {
-  components: {
-    OverviewBannier,
-    TrackList,
-  },
-  setup() {
-    const currentPlaylist = ref(null);
-    const route = useRoute();
-    const store = useSpotifyStore();
+const currentPlaylist = ref(null);
+const route = useRoute();
+const libraryStore = useLibraryStore();
 
-    const fetchPlaylist = async (playlistId) => {
-      try {
-        await store.fetchPlaylistById(playlistId);
-        currentPlaylist.value = store.playlistSelected;
-      } catch (error) {
-        console.error('Erreur lors du chargement de la playlist:', error);
-      }
-    };
-
-    const updatePlaylist = async (playlistId) => {
-      if (playlistId) {
-        await fetchPlaylist(playlistId);
-      }
-    };
-
-    onMounted(async () => {
-      const playlistId = route.params.playlistId;
-      await updatePlaylist(playlistId);
-    });
-
-    watch(() => route.params.playlistId, async (newPlaylistId, oldPlaylistId) => {
-      if (newPlaylistId !== oldPlaylistId) {
-        await updatePlaylist(newPlaylistId);
-      }
-    });
-
-    return {
-      currentPlaylist,
-    };
-  },
+const fetchPlaylist = async (playlistId) => {
+  try {
+    await libraryStore.fetchPlaylistById(playlistId);
+    currentPlaylist.value = libraryStore.playlistSelected;
+  } catch (error) {
+    console.error('Erreur lors du chargement de la playlist:', error);
+  }
 };
+
+const updatePlaylist = async (playlistId) => {
+  if (playlistId) {
+    await fetchPlaylist(playlistId);
+  }
+};
+
+onMounted(async () => {
+  const playlistId = route.params.playlistId;
+  await updatePlaylist(playlistId);
+});
+
+watch(() => route.params.playlistId, async (newPlaylistId, oldPlaylistId) => {
+  if (newPlaylistId !== oldPlaylistId) {
+    await updatePlaylist(newPlaylistId);
+  }
+});
 </script>
 
 <template>
@@ -58,7 +46,6 @@ export default {
     <template v-else>
       <h2>No playlist has been found</h2>
     </template>
-
   </div>
 </template>
 

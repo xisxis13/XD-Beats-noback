@@ -1,60 +1,50 @@
-<script>
+<script setup>
 import appIcon from '@/assets/icons/app-logo.svg';
 import LibraryItem from './LibraryItem.vue';
-import { useSpotifyStore } from '@/stores/spotify';
+import { useAuthStore } from '@/stores/auth';
+import { useLibraryStore } from '@/stores/library';
 import { RouterLink, useRoute } from 'vue-router';
 import { House, Globe, Library, Plus } from 'lucide-vue-next';
+import { ref, onMounted } from 'vue';
 
-export default {
-  components: {
-    RouterLink,
-    House,
-    Globe,
-    Library,
-    Plus,
-    LibraryItem,
-  },
-  data() {
-    return {
-      appIcon,
-      store: useSpotifyStore(),
-      route: useRoute(),
-      savedAlbums: [],
-      savedPlaylists: [],
-      savedItems: [],
-    }
-  },
-  methods: {
-    isActive(url) {
-      return this.route.path === url;
-    },
-    async fetchAlbums() {
-      try {
-        await this.store.fetchUserSavedAlbums();
-        this.savedAlbums = this.store.savedAlbums;
-      } catch (error) {
-        console.error('Erreur lors du chargement des albums dans MenuBar:', error);
-      }
-    },
-    async fetchPlaylists() {
-      try {
-        await this.store.fetchUserSavedPlaylists();
-        this.savedPlaylists = this.store.savedPlaylists;
-      } catch (error) {
-        console.error('Erreur lors du chargement des playlists dans MenuBar:', error);
-      }
-    }
-  },
-  async mounted() {
-    if (this.store.accessToken) {
-      await this.fetchAlbums();
-      await this.fetchPlaylists();
-      
-      const combinedItems = [...this.savedAlbums, ...this.savedPlaylists];
-      this.savedItems = combinedItems.sort(() => Math.random() - 0.5);
-    }
-  },
-}
+const authStore = useAuthStore();
+const libraryStore = useLibraryStore();
+const route = useRoute();
+const savedAlbums = ref([]);
+const savedPlaylists = ref([]);
+const savedItems = ref([]);
+
+const isActive = (url) => {
+  return route.path === url;
+};
+
+const fetchAlbums = async () => {
+  try {
+    await libraryStore.fetchUserSavedAlbums();
+    savedAlbums.value = libraryStore.savedAlbums;
+  } catch (error) {
+    console.error('Erreur lors du chargement des albums dans MenuBar:', error);
+  }
+};
+
+const fetchPlaylists = async () => {
+  try {
+    await libraryStore.fetchUserSavedPlaylists();
+    savedPlaylists.value = libraryStore.savedPlaylists;
+  } catch (error) {
+    console.error('Erreur lors du chargement des playlists dans MenuBar:', error);
+  }
+};
+
+onMounted(async () => {
+  if (authStore.accessToken) {
+    await fetchAlbums();
+    await fetchPlaylists();
+
+    const combinedItems = [...savedAlbums.value, ...savedPlaylists.value];
+    savedItems.value = combinedItems.sort(() => Math.random() - 0.5);
+  }
+});
 </script>
 
 <template>
@@ -98,7 +88,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .menubar-container {
   grid-area: menu;
 

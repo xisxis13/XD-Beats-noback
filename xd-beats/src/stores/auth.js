@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-import { generateRandomString, generateCodeChallenge } from '@/utils/authUtils';
+import { generateRandomString, generateCodeChallenge } from '@/assets/utils/authUtils';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({

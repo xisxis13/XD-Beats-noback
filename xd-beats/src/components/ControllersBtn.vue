@@ -1,76 +1,69 @@
-<script>
+<script setup>
 import { CirclePlay, CirclePause, Shuffle, Repeat, FastForward, Rewind, Mic } from 'lucide-vue-next';
-import { useSpotifyStore } from '@/stores/spotify';
+import { useAuthStore } from '@/stores/auth';
+import { usePlayerStore } from '@/stores/player';
+import { ref, onMounted } from 'vue';
 
-export default {
-  components: {
-    CirclePlay,
-    CirclePause,
-    Shuffle,
-    Repeat,
-    FastForward,
-    Rewind,
-    Mic,
+const props = defineProps({
+  currentSong: {
+    type: Object,
+    required: true,
   },
-  props: {
-    currentSong: {
-      type: Object,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      store: useSpotifyStore(),
-      isRepeat: null,
-      isPlaying: null,
-    };
-  },
-  methods: {
-    async toggleRepeat() {
-      try {
-        await this.store.toggleRepeat();
-        this.isRepeat = this.store.isRepeat;
-      } catch (error) {
-        console.error('Erreur lors du chargement du mode boucle:', error);
-      }
-    },
-    async previousTrack() {
-      try {
-        await this.store.previousTrack();
-      } catch (error) {
-        console.error('Erreur lors du passage au titre précédent:', error);
-      }
-    },
-    async nextTrack() {
-      try {
-        await this.store.nextTrack();
-      } catch (error) {
-        console.error('Erreur lors du passage au titre suivant:', error);
-      }
-    },
-    async togglePlayPause() {
-      try {
-        await this.store.togglePlayPause();
-        this.isPlaying = this.store.isPlaying;
-      } catch (error) {
-        console.error('Erreur lors du changement play/pause:', error);
-      }
-    },
-    async toggleShuffle() {
-      try {
-        await this.store.toggleShuffle();
-      } catch (error) {
-        console.error('Erreur lors du changement du mode aléatoire:', error);
-      }
-    },
-    async mounted() {
-      if (this.store.accessToken) {
-        await this.toggleRepeat();
-        await this.togglePlayPause();
-      }
-    },
-  },
+});
+
+const authStore = useAuthStore();
+const playerStore = usePlayerStore();
+const isRepeat = ref(null);
+const isPlaying = ref(null);
+
+const toggleRepeat = async () => {
+  try {
+    await playerStore.toggleRepeat();
+    isRepeat.value = playerStore.isRepeat;
+  } catch (error) {
+    console.error('Erreur lors du chargement du mode boucle:', error);
+  }
 };
+
+const previousTrack = async () => {
+  try {
+    await playerStore.previousTrack();
+  } catch (error) {
+    console.error('Erreur lors du passage au titre précédent:', error);
+  }
+};
+
+const nextTrack = async () => {
+  try {
+    await playerStore.nextTrack();
+  } catch (error) {
+    console.error('Erreur lors du passage au titre suivant:', error);
+  }
+};
+
+const togglePlayPause = async () => {
+  try {
+    await playerStore.togglePlayPause();
+    isPlaying.value = playerStore.isPlaying;
+  } catch (error) {
+    console.error('Erreur lors du changement play/pause:', error);
+  }
+};
+
+const toggleShuffle = async () => {
+  try {
+    await playerStore.toggleShuffle();
+  } catch (error) {
+    console.error('Erreur lors du changement du mode aléatoire:', error);
+  }
+};
+
+onMounted(async () => {
+  if (authStore.accessToken) {
+    await toggleRepeat();
+    await togglePlayPause();
+  }
+});
 </script>
 
 <template>
@@ -85,7 +78,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .controllers-container {
   display: flex;
   align-items: center;

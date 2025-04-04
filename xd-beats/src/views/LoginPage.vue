@@ -1,18 +1,9 @@
-<script>
+<script setup>
 import spotifyIcon from '@/assets/icons/spotify-icon.svg';
 import appIcon from '@/assets/icons/app-logo.svg';
+import { useAuthStore } from '@/stores/auth';
 
-import { useSpotifyStore } from '@/stores/spotify';
-
-export default {
-  data() {
-    return {
-      store: useSpotifyStore(),
-      spotifyIcon,
-      appIcon,
-    }
-  },
-}
+const authStore = useAuthStore();
 </script>
 
 <template>
@@ -26,7 +17,7 @@ export default {
 
       <h3>Connect you with your Spotify account</h3>
 
-      <button class="login-btn" @click="store.login">
+      <button class="login-btn" @click="authStore.login">
         <img :src="spotifyIcon" alt="spotify icon">
         <h4>Log in with Spotify</h4>
       </button>
@@ -34,7 +25,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .login-page-container {
   display: flex;
   flex-direction: column;

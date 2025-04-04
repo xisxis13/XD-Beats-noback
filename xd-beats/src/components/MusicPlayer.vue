@@ -1,84 +1,76 @@
-<script>
+<script setup>
 import explicitIcon from '@/assets/icons/explicit-icon.svg';
 import ProgressBar from '@/components/ProgressBar.vue';
 import ControllersBtn from './ControllersBtn.vue';
-import { useSpotifyStore } from '@/stores/spotify';
+import { useAuthStore } from '@/stores/auth';
+import { usePlayerStore } from '@/stores/player';
 import { RouterLink } from 'vue-router';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-export default {
-  components: {
-    RouterLink,
-    ProgressBar,
-    ControllersBtn,
-  },
-  data() {
-    return {
-      store: useSpotifyStore(),
-      currentlyPlaying: null,
-      explicitIcon,
-      progressMs: 0,
-      durationMs: 0,
-      isPlaying: false,
-      intervalId: null,
-    };
-  },
-  methods: {
-    async fetchCurrentlyPlaying() {
-      try {
-        await this.store.fetchCurrentlyPlaying();
-        this.currentlyPlaying = this.store.currentlyPlaying;
-        if (this.currentlyPlaying) {
-          this.progressMs = this.currentlyPlaying.progress_ms;
-          this.durationMs = this.currentlyPlaying.item.duration_ms;
-          this.isPlaying = this.currentlyPlaying.is_playing;
-          this.startProgressUpdate();
-        } else {
-          this.stopProgressUpdate();
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement de la lecture actuelle:', error);
-      }
-    },
+const authStore = useAuthStore();
+const playerStore = usePlayerStore();
+const currentlyPlaying = ref(null);
+const progressMs = ref(0);
+const durationMs = ref(0);
+const isPlaying = ref(false);
+let intervalId = null;
 
-    startProgressUpdate() {
-      if (this.isPlaying && !this.intervalId) {
-        this.intervalId = setInterval(() => {
-          if (this.isPlaying) {
-            this.progressMs += 1000;
-            if (this.progressMs >= this.durationMs) {
-              this.fetchCurrentlyPlaying();
-            }
-          }
-        }, 1000);
-      }
-    },
-
-    stopProgressUpdate() {
-      if (this.intervalId) {
-        clearInterval(this.intervalId);
-        this.intervalId = null;
-      }
-    },
-
-    async handleSeek(newPosition) {
-      try {
-        await this.store.seekToPosition(newPosition);
-        this.progressMs = newPosition;
-        this.fetchCurrentlyPlaying();
-      } catch (error) {
-        console.error('Erreur lors du seek:', error);
-      }
-    },
-  },
-  mounted() {
-    if (this.store.accessToken) {
-      this.fetchCurrentlyPlaying();
+const fetchCurrentlyPlaying = async () => {
+  try {
+    await playerStore.fetchCurrentlyPlaying();
+    currentlyPlaying.value = playerStore.currentlyPlaying;
+    if (currentlyPlaying.value) {
+      progressMs.value = currentlyPlaying.value.progress_ms;
+      durationMs.value = currentlyPlaying.value.item.duration_ms;
+      isPlaying.value = currentlyPlaying.value.is_playing;
+      startProgressUpdate();
+    } else {
+      stopProgressUpdate();
     }
-  },
-  beforeUnmount() {
-    this.stopProgressUpdate();
-  },
+  } catch (error) {
+    console.error('Erreur lors du chargement de la lecture actuelle:', error);
+  }
 };
+
+const startProgressUpdate = () => {
+  if (isPlaying.value && !intervalId) {
+    intervalId = setInterval(() => {
+      if (isPlaying.value) {
+        progressMs.value += 1000;
+        if (progressMs.value >= durationMs.value) {
+          fetchCurrentlyPlaying();
+        }
+      }
+    }, 1000);
+  }
+};
+
+const stopProgressUpdate = () => {
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+};
+
+const handleSeek = async (newPosition) => {
+  try {
+    await playerStore.seekToPosition(newPosition);
+    progressMs.value = newPosition;
+    fetchCurrentlyPlaying();
+  } catch (error) {
+    console.error('Erreur lors du seek:', error);
+  }
+};
+
+onMounted(() => {
+  if (authStore.accessToken) {
+    fetchCurrentlyPlaying();
+  }
+});
+
+onBeforeUnmount(() => {
+  stopProgressUpdate();
+});
 </script>
 
 <template>
@@ -119,13 +111,13 @@ export default {
       </div>
 
       <div class="actions-btn-container">
-        
+
       </div>
     </template>
   </div>
 </template>
 
-<style>
+<style scoped>
 .player-container {
   grid-area: player;
   display: grid;

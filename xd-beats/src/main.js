@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
-import { useSpotifyStore } from './stores/spotify';
+import { initializeStores } from './stores';
 import('./assets/style/font.css');
 import('./assets/style/common.css');
 
@@ -12,7 +12,6 @@ const pinia = createPinia();
 app.use(pinia);
 app.use(router);
 
-const spotifyStore = useSpotifyStore();
-spotifyStore.initialize().then(() => {
+initializeStores().then(() => {
   app.mount('#app');
 });

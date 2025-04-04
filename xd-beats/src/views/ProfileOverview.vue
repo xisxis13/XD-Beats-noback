@@ -1,126 +1,103 @@
-<script>
-import { onMounted, ref, watch } from 'vue';
-import { useSpotifyStore } from '@/stores/spotify';
+<script setup>
+import { onMounted, ref } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { useProfileStore } from '@/stores/profile';
+import { useLibraryStore } from '@/stores/library';
 import ColorThief from 'colorthief';
 import TrackList from '@/components/TrackList.vue';
 import ObjectList from '@/components/ObjectList.vue';
 
-export default {
-  components: {
-    TrackList,
-    ObjectList,
-  },
-  data() {
-    return {
-      store: useSpotifyStore(),
-      followedArtists: [],
-      publicPlaylists: [],
-      isLoading: false,
-    }
-  },
-  methods: {
-    async fetchFollowedArtists() {
-      this.isLoading = true;
-      try {
-        await this.store.fetchUserFollowedArtists();
-        this.followedArtists = this.store.followedArtists;
-      } catch (error) {
-        console.error('Erreur lors du chargement des artistes suivis:', error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    async fetchUserPublicPlaylists(limit, offset) {
-      this.isLoading = true;
-        try {
-          await this.store.fetchUserPublicPlaylists(limit, offset);
-          this.publicPlaylists = this.store.publicPlaylists;
-        } catch (error) {
-          console.error('Erreur lors du chargement des playlists public:', error);
-        } finally {
-          this.isLoading = false;
-        }
-    },
-  },
-  setup(props) {
-    const dominantColor = ref('');
-    const cover = ref(null);
+const authStore = useAuthStore();
+const profileStore = useProfileStore();
+const libraryStore = useLibraryStore();
+const followedArtists = ref([]);
+const publicPlaylists = ref([]);
+const isLoading = ref(false);
+const dominantColor = ref('');
+const cover = ref(null);
 
-    const getDominantColor = () => {
-      const colorThief = new ColorThief();
-      const img = cover.value;
+const fetchFollowedArtists = async () => {
+  isLoading.value = true;
+  try {
+    await libraryStore.fetchUserFollowedArtists();
+    followedArtists.value = libraryStore.followedArtists;
+  } catch (error) {
+    console.error('Erreur lors du chargement des artistes suivis:', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 
-      if (img && img.complete) {
-        const color = colorThief.getColor(img);
-        dominantColor.value = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-      } else if (img) {
-        img.addEventListener('load', () => {
-          const color = colorThief.getColor(img);
-          dominantColor.value = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-        });
-      }
-    };
+const fetchUserPublicPlaylists = async (limit, offset) => {
+  isLoading.value = true;
+  try {
+    await libraryStore.fetchUserPublicPlaylists(limit, offset);
+    publicPlaylists.value = libraryStore.publicPlaylists;
+  } catch (error) {
+    console.error('Erreur lors du chargement des playlists public:', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 
-    const gradientStyle = () => {
-      if (!dominantColor.value) return {};
+const getDominantColor = () => {
+  const colorThief = new ColorThief();
+  const img = cover.value;
 
-      const rgb = dominantColor.value;
-      const rgbaOpaque = rgb.replace('rgb', 'rgba').replace(')', ', 0.8)');
-      const rgbaTransparent = rgb.replace('rgb', 'rgba').replace(')', ', 0)');
-
-      return {
-        background: rgb,
-        background: `-moz-linear-gradient(180deg, ${rgbaOpaque} 0%, ${rgbaTransparent} 100%)`,
-        background: `-webkit-linear-gradient(180deg, ${rgbaOpaque} 0%, ${rgbaTransparent} 100%)`,
-        background: `linear-gradient(180deg, ${rgbaOpaque} 0%, ${rgbaTransparent} 100%)`,
-        filter: `progid:DXImageTransform.Microsoft.gradient(startColorstr="#aa29cb", endColorstr="#aa29cb", GradientType=1)`,
-      };
-    };
-
-    onMounted(() => {
-      getDominantColor();
+  if (img && img.complete) {
+    const color = colorThief.getColor(img);
+    dominantColor.value = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+  } else if (img) {
+    img.addEventListener('load', () => {
+      const color = colorThief.getColor(img);
+      dominantColor.value = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
     });
+  }
+};
 
-    watch(() => props.current, (newCurrent, oldCurrent) => {
-      if (newCurrent !== oldCurrent) {
-        dominantColor.value = '';
-        getDominantColor();
-      }
-    }, { deep: true });
+const gradientStyle = () => {
+  if (!dominantColor.value) return {};
 
-    return {
-      dominantColor,
-      cover,
-      gradientStyle,
-    };
-  },
-  async mounted() {
-    if (this.store.accessToken) {
-      await this.fetchFollowedArtists();
-      await this.fetchUserPublicPlaylists(50, 5);
-    }
-  },
-}
+  const rgb = dominantColor.value;
+  const rgbaOpaque = rgb.replace('rgb', 'rgba').replace(')', ', 0.8)');
+  const rgbaTransparent = rgb.replace('rgb', 'rgba').replace(')', ', 0)');
+
+  return {
+    background: rgb,
+    background: `-moz-linear-gradient(180deg, ${rgbaOpaque} 0%, ${rgbaTransparent} 100%)`,
+    background: `-webkit-linear-gradient(180deg, ${rgbaOpaque} 0%, ${rgbaTransparent} 100%)`,
+    background: `linear-gradient(180deg, ${rgbaOpaque} 0%, ${rgbaTransparent} 100%)`,
+    filter: `progid:DXImageTransform.Microsoft.gradient(startColorstr="#aa29cb", endColorstr="#aa29cb", GradientType=1)`,
+  };
+};
+
+onMounted(async () => {
+  getDominantColor();
+  if (authStore.accessToken) {
+    await fetchFollowedArtists();
+    await fetchUserPublicPlaylists(50, 5);
+  }
+});
 </script>
 
 <template>
   <div class="profile-overview-container box">
-    <template v-if="store.userProfile">
+    <template v-if="profileStore.userProfile">
       <div class="bannier-container" :style="gradientStyle()">
         <img
           ref="cover"
-          :src="store.userProfile.images[0].url"
-          :alt="store.userProfile.name + ' cover'"
+          :src="profileStore.userProfile.images[0].url"
+          :alt="profileStore.userProfile.name + ' cover'"
           class="bannier-img circle"
           crossorigin="anonymous"
         />
 
         <div class="bannier-details-container">
           <h5 class="current-object-type light">User</h5>
-          <h1 class="current-object-name">{{ store.userProfile.display_name }}</h1>
+          <h1 class="current-object-name">{{ profileStore.userProfile.display_name }}</h1>
           <h5 class="current-object-details">
-            <span v-if="store.userProfile.followers.total < 2" class="light"> • {{ store.userProfile.followers.total }} follower</span>
-            <span v-else class="light"> • {{ store.userProfile.followers.total }} followers</span>
+            <span v-if="profileStore.userProfile.followers.total < 2" class="light"> • {{ profileStore.userProfile.followers.total }} follower</span>
+            <span v-else class="light"> • {{ profileStore.userProfile.followers.total }} followers</span>
             <span v-if="followedArtists.length < 2" class="light"> • {{ followedArtists.length }} Followed Artist</span>
             <span v-else class="light"> • {{ followedArtists.length }} Followed Artists</span>
           </h5>
@@ -133,7 +110,7 @@ export default {
       </div>
 
       <div class="followed-artists-container" v-if="followedArtists.length > 0">
-        <h3>Followed Artirsts</h3>
+        <h3>Followed Artists</h3>
         <ObjectList :object-list="followedArtists" />
       </div>
 
