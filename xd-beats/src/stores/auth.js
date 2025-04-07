@@ -28,11 +28,17 @@ export const useAuthStore = defineStore('auth', {
 
     async getToken(code) {
       try {
-        const clientId = '656fafd0a60d45bdb5757933f4ac7f18';
+        const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+
+        console.log("Window location hostname:", window.location.hostname);
         const isAlwaysdata = window.location.hostname.includes('alwaysdata.net');
+        console.log("isAlwaysdata:", isAlwaysdata);
+
         const redirectUri = isAlwaysdata
           ? 'https://starboy.alwaysdata.net/callback'
           : (import.meta.env.VITE_REDIRECT_URI || 'http://localhost:5173/callback');
+        console.log("Redirect URI:", redirectUri);
+
         const tokenUrl = 'https://accounts.spotify.com/api/token';
         const codeVerifier = localStorage.getItem('codeVerifier');
 
