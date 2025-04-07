@@ -11,8 +11,11 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     async login() {
-      const clientId = '656fafd0a60d45bdb5757933f4ac7f18';
-      const redirectUri = 'http://localhost:5173/callback';
+      const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+      const redirectUri = import.meta.env.VITE_REDIRECT_URI ||
+        (import.meta.env.MODE === 'production'
+          ? 'https://starboy.alwaysdata.net/callback'
+          : 'http://localhost:5173/callback');
       const scopes = 'user-read-private user-read-email playlist-read-private user-library-read user-read-currently-playing user-read-playback-state user-modify-playback-state user-follow-read';
 
       this.codeVerifier = generateRandomString(128);
@@ -26,7 +29,9 @@ export const useAuthStore = defineStore('auth', {
     async getToken(code) {
       try {
         const clientId = '656fafd0a60d45bdb5757933f4ac7f18';
-        const redirectUri = 'http://localhost:5173/callback';
+        const redirectUri = import.meta.env.MODE === 'production'
+          ? 'https://starboy.alwaysdata.net/callback'
+          : 'http://localhost:5173/callback';
         const tokenUrl = 'https://accounts.spotify.com/api/token';
         const codeVerifier = localStorage.getItem('codeVerifier');
 
